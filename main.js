@@ -5,7 +5,7 @@ function networkViz() {
 
   let simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(d => d.id))
-    .force("charge", d3.forceManyBody().strength(-300))
+    .force("charge", d3.forceManyBody().strength(-400))
     .force("center", d3.forceCenter(width / 2, height / 2));
 
   d3.json("cocomac_fv91_connectivity.json", (error, data) => {
@@ -29,22 +29,36 @@ function networkViz() {
     console.log('nodes', nodes);
     console.log('links', links);
 
-    var link = svg.append("g")
+    let link = svg.append("g")
         .attr("class", "links")
       .selectAll("line")
       .data(links)
       .enter().append("line")
         .attr("stroke-width", 1);
 
-    var node = svg.append("g")
+    let node = svg.append("g")
         .attr("class", "nodes")
-      .selectAll("circle")
+      .selectAll(".circle")
       .data(nodes)
-      .enter().append("circle")
-        .attr("r", 5)
+      .enter().append("g")
+        .classed('circle', true)
 
-    node.append("title")
-      .text(d => d.id);
+    const nodeSize = 20;
+    node.append('circle')
+        .attr('cx', 0)
+        .attr('cy', 0)
+        .attr("r", nodeSize)
+      .append("title")
+        .text(d => d.id);
+
+    const fontSize = 12;
+    node.append('text')
+      .text(d => d.id.replace('FV91-', ''))
+      .attr('x', 0)
+      .attr('y', nodeSize / 2 - fontSize / 2)
+      .attr('text-anchor', 'middle')
+      .attr('fill', 'white')
+      .attr('font-size', fontSize)
 
     simulation
       .nodes(nodes)
@@ -61,8 +75,7 @@ function networkViz() {
         .attr("y2", d => d.target.y);
 
       node
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y);
+        .attr("transform", d => `translate(${d.x}, ${d.y})`);
     }
   })
 }
