@@ -5,7 +5,7 @@ function networkViz() {
 
   let simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(d => d.id))
-    .force("charge", d3.forceManyBody().strength(-400))
+    .force("charge", d3.forceManyBody().strength(-800))
     .force("center", d3.forceCenter(width / 2, height / 2));
 
   d3.json("cocomac_fv91_connectivity.json", (error, data) => {
@@ -14,6 +14,8 @@ function networkViz() {
     console.log('read data', data);
 
     let vertices = d3.keys(data);
+    vertices = vertices.slice(0, 10);
+    vertexSet = d3.set(vertices);
     console.log('vertices', vertices);
 
     let nodes = vertices.map(v => ({id: v}));
@@ -21,6 +23,7 @@ function networkViz() {
     vertices.forEach(v => {
       edgeMap = data[v];
       d3.keys(edgeMap).forEach(other => {
+        if (!vertexSet.has(other)) return;
         if (v === other) return;  // skip self-edges
         if (edgeMap[other] === 1) links.push({source: v, target: other});
       })
